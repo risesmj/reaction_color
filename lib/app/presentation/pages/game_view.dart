@@ -20,13 +20,15 @@ class _GameViewState extends State<GameView> with TickerProviderStateMixin {
     super.initState();
 
     Timer.periodic(
-      const Duration(seconds: 1),
+      const Duration(milliseconds: 100),
       (timer) {
         if (!widget.viewModel.gameOver && !widget.viewModel.menuInitialActive) {
-          widget.viewModel.decrementTime();
-          print(widget.viewModel.seconds);
+          widget.viewModel.milisecondsCurrent += 100;
+          widget.viewModel.milisecondsForShuffle += 100;
 
-          if (widget.viewModel.seconds <= 0) {
+          widget.viewModel.decrementTime();
+
+          if (widget.viewModel.time <= 0) {
             widget.viewModel.gameOver = true;
           }
         }
@@ -97,7 +99,7 @@ class _GameViewState extends State<GameView> with TickerProviderStateMixin {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    "Tempo: ${widget.viewModel.seconds}",
+                    "Tempo: ${widget.viewModel.time}",
                     style: const TextStyle(
                       fontSize: 20,
                       fontFamily: "press start2p regular",

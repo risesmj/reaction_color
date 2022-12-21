@@ -4,14 +4,22 @@ import 'package:reaction_color/app/core/constants.dart';
 import 'package:reaction_color/app/domain/entities/color_square_entity.dart';
 
 class GameViewModel {
+  //score
   int score = 0;
-  int seconds = 5;
-  int milisecondsForShuffle = GameSetting.timeMilisecondsShuffle;
+
+  //time
+  int milisecondsCurrent = 0;
+  int time = GameSetting.timeSecondsRoundInitial;
+  int milisecondsForShuffle = 0;
+  int timeMilisecondShuffle = GameSetting.timeMilisecondsShuffleInitial;
+
+  //colors
   ColorSquareEntity colorRequest = _getNextColor();
   String lastColorRequest = "";
+
+  //control game
   bool gameOver = false;
   bool menuInitialActive = true;
-  int timeShuffle = GameSetting.timeMilisecondsShuffle;
 
   List<ColorSquareEntity> listColorSquare =
       List.from(ArraysConstants.colorSquares);
@@ -20,15 +28,18 @@ class GameViewModel {
     if (colorSquare.id == colorRequest.id) {
       score += 10;
       _requestNewColor();
-      shuffle();
-      seconds++;
+      _decrementShuffle();
+      time++;
     } else {
       decrementTime(decrement: 2);
     }
   }
 
-  shuffle() {
-    listColorSquare.shuffle();
+  shuffle({bool force = false}) {
+    if (force || milisecondsForShuffle >= timeMilisecondShuffle) {
+      listColorSquare.shuffle();
+      milisecondsForShuffle = 0;
+    }
   }
 
   _requestNewColor() {
@@ -50,13 +61,23 @@ class GameViewModel {
   reset() {
     score = 0;
     gameOver = false;
-    seconds = 5;
+    time = GameSetting.timeSecondsRoundInitial;
     colorRequest = _getNextColor();
+    milisecondsCurrent = 0;
+    milisecondsForShuffle = 0;
+    timeMilisecondShuffle = GameSetting.timeMilisecondsShuffleInitial;
   }
 
   void decrementTime({int decrement = 1}) {
-    if ((seconds - decrement) >= 0) {
-      seconds--;
+    if ((milisecondsCurrent % 1000) == 0 && (time - decrement) >= 0) {
+      time--;
+    }
+  }
+
+  _decrementShuffle() {
+    if (timeMilisecondShuffle - 200 >
+        GameSetting.timeMaxMilisecondsForShuffle) {
+      timeMilisecondShuffle -= 200;
     }
   }
 }
